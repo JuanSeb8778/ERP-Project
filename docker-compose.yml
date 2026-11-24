@@ -1,0 +1,35 @@
+version: "3.9"
+
+# Free local infrastructure. Requires Docker Desktop running.
+# Start with:  docker compose up -d
+# If you don't have Docker, use a free Neon/Supabase Postgres and set DATABASE_URL instead.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: techforge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: techforge
+      POSTGRES_PASSWORD: techforge
+      POSTGRES_DB: techforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - techforge_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U techforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional: Redis for background jobs (Phase 5+). Not required to run the app.
+  redis:
+    image: redis:7-alpine
+    container_name: techforge-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  techforge_pgdata:

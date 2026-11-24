@@ -1,0 +1,124 @@
+name: CI/CD - Plan de Pruebas ERP
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  # ─────────────── CI: validar y ejecutar el Plan de Pruebas (CP-01 a CP-35) ───────────────
+  build-and-test:
+    name: Build & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+
+    # Base de datos de pruebas (prerrequisito del plan: API y BD disponibles)
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: techforge
+          POSTGRES_PASSWORD: techforge
+          POSTGRES_DB: techforge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U techforge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Valores solo para la BD efímera de CI (no son credenciales reales)
+    env:
+      DATABASE_URL: postgresql://techforge:techforge@localhost:5432/techforge?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret-solo-pruebas
+      JWT_REFRESH_SECRET: ci-refresh-secret-solo-pruebas
+      NODE_ENV: test
+      LOG_LEVEL: silent
+
+    outputs:
+      render_configurado: ${{ steps.render.outputs.configurado }}
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Instalar dependencias
+        run: |
+          npm ci
+          npm run db:generate
+
+      - name: Validar sintaxis
+        run: npm run check
+
+      - name: Preparar base de datos de pruebas
+        run: |
+          cp .env.example .env
+          npm run db:push --workspace @techforge/api -- --skip-generate
+          npm run db:seed
+
+      - name: Ejecutar pruebas unitarias con cobertura
+        run: npm run test:coverage
+
+      - name: Guardar reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-cobertura-node-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 14
+
+      - name: Verificar secrets de Render
+        id: render
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          APP: ${{ secrets.RENDER_APP_URL }}
+        run: |
+          if [ -n "$HOOK" ] && [ -n "$APP" ]; then
+            echo "configurado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configurado=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Secrets de Render no configurados: el job Deploy se omitirá."
+          fi
+
+  # ─────────────── CD: solo en push a main, si las pruebas pasaron y existen los secrets ───────────────
+  deploy:
+    name: Deploy a Render
+    needs: build-and-test
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.build-and-test.outputs.render_configurado == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Disparar despliegue en Render
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: Health check
+        env:
+          APP_URL: ${{ secrets.RENDER_APP_URL }}
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "$APP_URL/api/v1/health"; then
+              echo ""
+              echo "Aplicación en línea"
+              exit 0
+            fi
+            echo "Esperando a que la aplicación responda ($i/30)..."
+            sleep 20
+          done
+          echo "La aplicación no respondió a tiempo"
+          exit 1

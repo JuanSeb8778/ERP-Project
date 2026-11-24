@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — one source of truth for light & dark.
+   Light mode uses a softly tinted page + pure-white cards so
+   surfaces visibly float (with the shadow scale below). Swap
+   the hues here to re-brand the whole app.
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --radius: 0.7rem;
+
+    /* Page vs. surface — the key to depth: page is tinted, cards are white */
+    --background: 225 30% 96.5%;
+    --foreground: 224 40% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 40% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 40% 12%;
+
+    /* Brand — vivid indigo→violet */
+    --primary: 245 74% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 245 74% 96%;
+
+    --secondary: 225 24% 93%;
+    --secondary-foreground: 224 32% 24%;
+    --muted: 225 24% 93.5%;
+    --muted-foreground: 223 14% 42%;
+    --accent: 245 74% 96%;
+    --accent-foreground: 245 60% 40%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 62% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 33 92% 48%;
+    --warning-foreground: 0 0% 100%;
+    --info: 205 85% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 225 20% 88%;
+    --input: 225 20% 86%;
+    --ring: 245 74% 58%;
+
+    /* Sidebar — deep, slightly blue-violet; gradient in component */
+    --sidebar: 232 40% 13%;
+    --sidebar-to: 245 44% 17%;
+    --sidebar-foreground: 226 22% 78%;
+    --sidebar-accent: 245 74% 66%;
+
+    /* Elevation — soft, cool-tinted shadows (Linear/Stripe feel) */
+    --shadow-color: 224 45% 24%;
+    --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.10);
+    --shadow-sm: 0 1px 2px 0 hsl(var(--shadow-color) / 0.07), 0 1px 3px 0 hsl(var(--shadow-color) / 0.06);
+    --shadow-md: 0 2px 6px -1px hsl(var(--shadow-color) / 0.10), 0 4px 14px -3px hsl(var(--shadow-color) / 0.10);
+    --shadow-lg: 0 10px 24px -6px hsl(var(--shadow-color) / 0.16), 0 6px 12px -6px hsl(var(--shadow-color) / 0.10);
+    --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.24);
+
+    /* Data-viz palette */
+    --chart-1: 245 74% 60%;
+    --chart-2: 173 64% 40%;
+    --chart-3: 33 92% 52%;
+    --chart-4: 322 70% 56%;
+    --chart-5: 205 85% 50%;
+    --chart-6: 262 68% 62%;
+  }
+
+  .dark {
+    --background: 229 30% 8%;
+    --foreground: 226 24% 90%;
+    --card: 228 26% 11%;
+    --card-foreground: 226 24% 90%;
+    --popover: 228 26% 12%;
+    --popover-foreground: 226 24% 90%;
+
+    --primary: 245 78% 68%;
+    --primary-foreground: 229 30% 8%;
+    --primary-muted: 245 40% 20%;
+
+    --secondary: 228 20% 18%;
+    --secondary-foreground: 226 20% 86%;
+    --muted: 228 20% 16%;
+    --muted-foreground: 226 14% 60%;
+    --accent: 245 40% 22%;
+    --accent-foreground: 245 80% 84%;
+
+    --destructive: 0 66% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 56% 48%;
+    --success-foreground: 0 0% 100%;
+    --warning: 33 90% 56%;
+    --warning-foreground: 229 30% 8%;
+    --info: 205 82% 56%;
+    --info-foreground: 229 30% 8%;
+
+    --border: 228 18% 20%;
+    --input: 228 18% 22%;
+    --ring: 245 78% 68%;
+
+    --sidebar: 231 34% 9%;
+    --sidebar-to: 244 36% 12%;
+    --sidebar-foreground: 226 18% 72%;
+    --sidebar-accent: 245 78% 70%;
+
+    --shadow-color: 229 60% 2%;
+    --shadow-xs: 0 1px 2px -1px hsl(var(--shadow-color) / 0.40);
+    --shadow-sm: 0 1px 2px 0 hsl(var(--shadow-color) / 0.40), 0 1px 3px 0 hsl(var(--shadow-color) / 0.36);
+    --shadow-md: 0 2px 6px -1px hsl(var(--shadow-color) / 0.50), 0 4px 14px -3px hsl(var(--shadow-color) / 0.44);
+    --shadow-lg: 0 10px 24px -6px hsl(var(--shadow-color) / 0.60), 0 6px 12px -6px hsl(var(--shadow-color) / 0.44);
+    --shadow-xl: 0 24px 48px -12px hsl(var(--shadow-color) / 0.70);
+
+    --chart-1: 245 78% 70%;
+    --chart-2: 173 60% 50%;
+    --chart-3: 33 90% 58%;
+    --chart-4: 322 72% 64%;
+    --chart-5: 205 82% 60%;
+    --chart-6: 262 70% 70%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+    font-variant-numeric: tabular-nums;
+    /* Faint depth on the page so white cards read as elevated */
+    background-image:
+      radial-gradient(60rem 40rem at 100% -10%, hsl(var(--primary) / 0.05), transparent 60%),
+      radial-gradient(50rem 40rem at -10% 110%, hsl(var(--chart-4) / 0.04), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  /* Refined, quieter scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.28);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.45);
+  }
+}
+
+@layer components {
+  /* Subtle top-sheen used on elevated surfaces */
+  .surface {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+  }
+  .interactive {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .text-gradient {
+    @apply bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent;
+  }
+}
