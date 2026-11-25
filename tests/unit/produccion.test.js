@@ -76,7 +76,7 @@ test("CP-24: registrar consumo y avance deja datos consistentes", async () => {
 
 test(
   "CP-23: no se permite retroceder una orden COMPLETED a PLANNED",
-  { todo: "No aplica en la versión instalada: la API no implementa una máquina de estados (cualquier estado válido se acepta)" },
+  { todo: "TODO - No aplica en la versión instalada: la API no implementa una máquina de estados (cualquier estado válido se acepta)" },
   async () => {
     const res = await api("PATCH", `/production-orders/${orden.id}`, { token: jefe, body: { status: "PLANNED" } });
     assert.notEqual(res.status, 200, "la transición COMPLETED → PLANNED debería bloquearse");

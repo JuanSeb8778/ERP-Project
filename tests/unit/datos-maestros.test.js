@@ -54,7 +54,7 @@ test("CP-06: un código duplicado tampoco se guarda", async () => {
 
 test(
   "CP-06: un código duplicado responde con un error controlado (409)",
-  { todo: "Defecto encontrado: la API responde 500 INTERNAL_ERROR en vez de 409 CONFLICT ante un código duplicado" },
+  { todo: "TODO - Defecto encontrado: la API responde 500 INTERNAL_ERROR en vez de 409 CONFLICT ante un código duplicado" },
   async () => {
     const res = await api("POST", "/customers", { token, body: { code: codigo, name: "Duplicado" } });
     assert.equal(res.status, 409);
