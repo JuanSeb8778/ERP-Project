@@ -34,7 +34,7 @@ test("CP-09: registrar una entrada de inventario actualiza el stock", async () =
   const antes = await stockOf(almacen, bodega.id, "PRODUCT", producto.id);
   const res = await mover(50, "PURCHASE_RECEIPT");
   assert.equal(res.status, 201);
-  assert.equal(res.body.data.stock.quantity, antes + 500);
+  assert.equal(res.body.data.stock.quantity, antes + 50);
   assert.equal(res.body.data.movement.delta, 50);
   assert.equal(await stockOf(almacen, bodega.id, "PRODUCT", producto.id), antes + 50);
 });
